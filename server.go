@@ -7,7 +7,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/go-pg/pg/v10"
+	"github.com/joho/godotenv"
 	"github.com/tkp-VL037/go-employee/db"
 	"github.com/tkp-VL037/go-employee/graph"
 )
@@ -15,12 +15,14 @@ import (
 const defaultPort = "4000"
 
 func main() {
-	DB := db.New(&pg.Options{
-		User:     os.Getenv("DB_USERNAME"),
-		Password: os.Getenv("DB_PASSWORD"),
-		Database: os.Getenv("DB_NAME"),
-	})
-	defer DB.Close()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	if err := db.Connect(); err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
