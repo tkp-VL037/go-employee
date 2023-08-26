@@ -11,6 +11,7 @@ import (
 	"github.com/tkp-VL037/go-employee/db"
 	gm "github.com/tkp-VL037/go-employee/graph/model"
 	"github.com/tkp-VL037/go-employee/model"
+	"github.com/tkp-VL037/go-employee/proto"
 	"gorm.io/gorm"
 )
 
@@ -31,25 +32,23 @@ func (r *mutationResolver) DeleteEmployee(ctx context.Context, id string) (bool,
 
 // GetEmployees is the resolver for the getEmployees field.
 func (r *queryResolver) GetEmployees(ctx context.Context) ([]*gm.EmployeeResponse, error) {
-	var employees []*model.Employee
-
-	result := db.DB.Preload("Statistic").Find(&employees)
-	if result.Error != nil {
-		return nil, result.Error
+	employees, err := r.EmployeeSrvClient.GetEmployees(ctx, &proto.NoParam{})
+	if err != nil {
+		return nil, err
 	}
 
-	employeesStatsResponse := make([]*gm.EmployeeResponse, len(employees))
-	for i, es := range employees {
-		employeesStatsResponse[i] = &gm.EmployeeResponse{
-			ID:        es.ID,
-			Name:      es.Name,
-			Age:       es.Age,
-			Position:  es.Position,
-			ViewCount: int(es.Statistic.ViewCount),
+	employeeRes := make([]*gm.EmployeeResponse, len(employees.EmployeeResponse))
+	for i, e := range employees.EmployeeResponse {
+		employeeRes[i] = &gm.EmployeeResponse{
+			ID:        e.Employee.Id,
+			Name:      e.Employee.Name,
+			Age:       int(e.Employee.Age),
+			Position:  e.Employee.Position,
+			ViewCount: int(e.Statistic.ViewCount),
 		}
 	}
 
-	return employeesStatsResponse, nil
+	return employeeRes, nil
 }
 
 // GetEmployeeDetail is the resolver for the getEmployeeDetail field.

@@ -8,10 +8,10 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/joho/godotenv"
-	"github.com/tkp-VL037/go-employee/graph"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/tkp-VL037/go-employee/graph"
 	pb "github.com/tkp-VL037/go-employee/proto"
 )
 
@@ -49,7 +49,7 @@ func employeeService() pb.EmployeeServiceClient {
 	port := os.Getenv("SERVICE_EMPLOYEE_PORT")
 	conn, err := grpc.Dial(port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatal("could not connect to", port, err)
+		log.Fatal("could not connect to ", port, err)
 	}
 
 	return pb.NewEmployeeServiceClient(conn)
