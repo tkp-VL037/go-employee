@@ -6,13 +6,9 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/tkp-VL037/go-employee/db"
 	gm "github.com/tkp-VL037/go-employee/graph/model"
-	"github.com/tkp-VL037/go-employee/model"
 	"github.com/tkp-VL037/go-employee/proto"
-	"gorm.io/gorm"
 )
 
 // AddEmployee is the resolver for the addEmployee field.
@@ -36,13 +32,31 @@ func (r *mutationResolver) AddEmployee(ctx context.Context, input *gm.NewEmploye
 }
 
 // UpdateEmployeeDetail is the resolver for the updateEmployeeDetail field.
-func (r *mutationResolver) UpdateEmployeeDetail(ctx context.Context, input *gm.UpdateEmployee) (*gm.EmployeeResponse, error) {
-	panic(fmt.Errorf("not implemented: UpdateEmployeeDetail - updateEmployeeDetail"))
+func (r *mutationResolver) UpdateEmployeeDetail(ctx context.Context, id string, input *gm.UpdateEmployee) (*gm.EmployeeResponse, error) {
+	employee, err := r.EmployeeSrvClient.UpdateEmployee(ctx, &proto.UpdateEmployeeRequest{
+		Id:       id,
+		Name:     input.Name,
+		Position: input.Position,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &gm.EmployeeResponse{
+		ID:        employee.Employee.Id,
+		Name:      employee.Employee.Name,
+		Age:       int(employee.Employee.Age),
+		Position:  employee.Employee.Position,
+		ViewCount: int(employee.Statistic.ViewCount),
+	}, nil
 }
 
 // DeleteEmployee is the resolver for the deleteEmployee field.
 func (r *mutationResolver) DeleteEmployee(ctx context.Context, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteEmployee - deleteEmployee"))
+	_, err := r.EmployeeSrvClient.DeleteEmployee(ctx, &proto.DeleteEmployeeRequest{
+		Id: id,
+	})
+	return err == nil, err
 }
 
 // GetEmployees is the resolver for the getEmployees field.
@@ -68,22 +82,18 @@ func (r *queryResolver) GetEmployees(ctx context.Context) ([]*gm.EmployeeRespons
 
 // GetEmployeeDetail is the resolver for the getEmployeeDetail field.
 func (r *queryResolver) GetEmployeeDetail(ctx context.Context, id string) (*gm.EmployeeResponse, error) {
-	var employee *model.Employee
-	if err := db.DB.Preload("Statistic").First(&employee, "id = ?", id).Error; err != nil {
-		return nil, err
-	}
-
-	err := db.DB.Model(&model.Statistic{}).Where("employee_id = ?", id).
-		UpdateColumn("view_count", gorm.Expr("view_count + ?", 1)).Error
+	employee, err := r.EmployeeSrvClient.GetEmployeeDetail(ctx, &proto.GetEmployeeDetailRequest{
+		Id: id,
+	})
 	if err != nil {
 		return nil, err
 	}
 
 	return &gm.EmployeeResponse{
-		ID:        employee.ID,
-		Name:      employee.Name,
-		Age:       employee.Age,
-		Position:  employee.Position,
+		ID:        employee.Employee.Id,
+		Name:      employee.Employee.Name,
+		Age:       int(employee.Employee.Age),
+		Position:  employee.Employee.Position,
 		ViewCount: int(employee.Statistic.ViewCount),
 	}, nil
 }

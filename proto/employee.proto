@@ -35,7 +35,8 @@ message AddEmployeeRequest {
 
 message UpdateEmployeeRequest {
     string id = 1;
-    string position = 2;
+    string name = 2;
+    string position = 3;
 }
 
 message DeleteEmployeeRequest {
@@ -43,8 +44,7 @@ message DeleteEmployeeRequest {
 }
 
 message DeleteEmployeeResponse {
-    string id = 1;
-    string name = 2;
+    bool success = 1;
 }
 
 service EmployeeService {

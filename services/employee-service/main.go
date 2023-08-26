@@ -7,8 +7,7 @@ import (
 	"os"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 
 	"github.com/joho/godotenv"
 	"github.com/segmentio/ksuid"
@@ -52,7 +51,30 @@ func (EmployeeServer) GetEmployees(ctx context.Context, param *pb.NoParam) (*pb.
 }
 
 func (EmployeeServer) GetEmployeeDetail(ctx context.Context, param *pb.GetEmployeeDetailRequest) (*pb.EmployeeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetEmployeeDetail not implemented")
+	var employee *model.Employee
+	if err := db.DB.Preload("Statistic").First(&employee, "id = ?", param.Id).Error; err != nil {
+		return nil, err
+	}
+
+	err := db.DB.Model(&model.Statistic{}).Where("employee_id = ?", param.Id).
+		UpdateColumn("view_count", gorm.Expr("view_count + ?", 1)).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: publish to NSQ
+
+	return &pb.EmployeeResponse{
+		Employee: &pb.Employee{
+			Id:       employee.ID,
+			Name:     employee.Name,
+			Age:      int32(employee.Age),
+			Position: employee.Position,
+		}, Statistic: &pb.Statistic{
+			Id:        employee.Statistic.ID,
+			ViewCount: employee.Statistic.ViewCount,
+		},
+	}, nil
 }
 
 func (EmployeeServer) AddEmployee(ctx context.Context, param *pb.AddEmployeeRequest) (*pb.EmployeeResponse, error) {
@@ -95,11 +117,46 @@ func (EmployeeServer) AddEmployee(ctx context.Context, param *pb.AddEmployeeRequ
 }
 
 func (EmployeeServer) UpdateEmployee(ctx context.Context, param *pb.UpdateEmployeeRequest) (*pb.EmployeeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateEmployee not implemented")
+	var employee *model.Employee
+	if err := db.DB.Preload("Statistic").First(&employee, "id = ?", param.Id).Error; err != nil {
+		return nil, err
+	}
+
+	employee.Name = param.Name
+	employee.Position = param.Position
+
+	if err := db.DB.Save(&employee).Error; err != nil {
+		return nil, err
+	}
+
+	return &pb.EmployeeResponse{
+		Employee: &pb.Employee{
+			Id:       employee.ID,
+			Name:     employee.Name,
+			Age:      int32(employee.Age),
+			Position: employee.Position,
+		},
+		Statistic: &pb.Statistic{
+			Id:         employee.Statistic.ID,
+			EmployeeID: employee.Statistic.EmployeeID,
+			ViewCount:  employee.Statistic.ViewCount,
+		},
+	}, nil
 }
 
 func (EmployeeServer) DeleteEmployee(ctx context.Context, param *pb.DeleteEmployeeRequest) (*pb.DeleteEmployeeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteEmployee not implemented")
+	err := db.DB.Where("employee_id = ?", param.Id).Delete(&model.Statistic{}).Error
+	if err != nil {
+		return &pb.DeleteEmployeeResponse{
+			Success: false,
+		}, nil
+	}
+
+	err = db.DB.Where("id = ?", param.Id).Delete(&model.Employee{}).Error
+
+	return &pb.DeleteEmployeeResponse{
+		Success: err == nil,
+	}, err
 }
 
 func main() {

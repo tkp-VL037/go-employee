@@ -24,6 +24,6 @@ type Query {
 
 type Mutation {
   addEmployee(input: NewEmployee): EmployeeResponse!
-  updateEmployeeDetail(input: UpdateEmployee): EmployeeResponse!
+  updateEmployeeDetail(id: ID!, input: UpdateEmployee): EmployeeResponse!
   deleteEmployee(id: ID!): Boolean!
 }
