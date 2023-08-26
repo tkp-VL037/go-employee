@@ -11,14 +11,29 @@ import (
 	"github.com/tkp-VL037/go-employee/graph/model"
 )
 
-// CreateTodo is the resolver for the createTodo field.
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
+// AddEmployee is the resolver for the addEmployee field.
+func (r *mutationResolver) AddEmployee(ctx context.Context, input *model.NewEmployee) (*model.EmployeeResponse, error) {
+	panic(fmt.Errorf("not implemented: AddEmployee - addEmployee"))
 }
 
-// Todos is the resolver for the todos field.
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
+// UpdateEmployeeDetail is the resolver for the updateEmployeeDetail field.
+func (r *mutationResolver) UpdateEmployeeDetail(ctx context.Context, input *model.UpdateEmployee) (*model.EmployeeResponse, error) {
+	panic(fmt.Errorf("not implemented: UpdateEmployeeDetail - updateEmployeeDetail"))
+}
+
+// DeleteEmployee is the resolver for the deleteEmployee field.
+func (r *mutationResolver) DeleteEmployee(ctx context.Context, id string) (bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteEmployee - deleteEmployee"))
+}
+
+// GetEmployees is the resolver for the getEmployees field.
+func (r *queryResolver) GetEmployees(ctx context.Context) ([]*model.EmployeeResponse, error) {
+	panic(fmt.Errorf("not implemented: GetEmployees - getEmployees"))
+}
+
+// GetEmployeeDetail is the resolver for the getEmployeeDetail field.
+func (r *queryResolver) GetEmployeeDetail(ctx context.Context, id string) (*model.EmployeeResponse, error) {
+	panic(fmt.Errorf("not implemented: GetEmployeeDetail - getEmployeeDetail"))
 }
 
 // Mutation returns MutationResolver implementation.

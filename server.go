@@ -10,7 +10,7 @@ import (
 	"github.com/tkp-VL037/go-employee/graph"
 )
 
-const defaultPort = "8080"
+const defaultPort = "4000"
 
 func main() {
 	port := os.Getenv("PORT")
