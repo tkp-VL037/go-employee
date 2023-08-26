@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/tkp-VL037/go-employee/proto";
+
+message Statistic {
+    string id = 1;
+    string employeeID = 2;
+    int64 viewCount = 3;
+}

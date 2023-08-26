@@ -4,4 +4,10 @@ package graph
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
-type Resolver struct{}
+import (
+	pb "github.com/tkp-VL037/go-employee/proto"
+)
+
+type Resolver struct {
+	EmployeeSrvClient pb.EmployeeServiceClient
+}
