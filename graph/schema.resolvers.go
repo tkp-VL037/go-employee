@@ -17,7 +17,22 @@ import (
 
 // AddEmployee is the resolver for the addEmployee field.
 func (r *mutationResolver) AddEmployee(ctx context.Context, input *gm.NewEmployee) (*gm.EmployeeResponse, error) {
-	panic(fmt.Errorf("not implemented: AddEmployee - addEmployee"))
+	employee, err := r.EmployeeSrvClient.AddEmployee(ctx, &proto.AddEmployeeRequest{
+		Name:     input.Name,
+		Age:      int32(input.Age),
+		Position: input.Position,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &gm.EmployeeResponse{
+		ID:        employee.Employee.Id,
+		Name:      employee.Employee.Name,
+		Age:       int(employee.Employee.Age),
+		Position:  employee.Employee.Position,
+		ViewCount: int(employee.Statistic.ViewCount),
+	}, nil
 }
 
 // UpdateEmployeeDetail is the resolver for the updateEmployeeDetail field.
