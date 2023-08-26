@@ -8,4 +8,4 @@ run_db:
 	docker run --name postgres-go-employee -p 5432:5432  -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e -d postgres:15-alpine
 
 create_db:
-	docker exec -it postgres-go-employee createdb -U postgres "employee"
+	docker exec -it postgres-go-employee createdb -U postgres "goemployee"
