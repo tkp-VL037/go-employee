@@ -23,10 +23,6 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// if err := db.Connect(); err != nil {
-	// 	log.Fatalf("Failed to connect to database: %v", err)
-	// }
-
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort

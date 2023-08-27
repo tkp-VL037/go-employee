@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -10,10 +12,12 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 	"github.com/segmentio/ksuid"
-	"github.com/tkp-VL037/go-employee/db"
 	"github.com/tkp-VL037/go-employee/model"
 	pb "github.com/tkp-VL037/go-employee/proto"
+	"github.com/tkp-VL037/go-employee/services/employee-service/constant"
+	"github.com/tkp-VL037/go-employee/services/employee-service/db"
 )
 
 type EmployeeServer struct {
@@ -23,7 +27,7 @@ type EmployeeServer struct {
 func (EmployeeServer) GetEmployees(ctx context.Context, param *pb.NoParam) (*pb.GetEmployeesResponse, error) {
 	var employees []*model.Employee
 
-	result := db.DB.Preload("Statistic").Find(&employees)
+	result := db.PostgresDB.Preload("Statistic").Find(&employees)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -52,29 +56,61 @@ func (EmployeeServer) GetEmployees(ctx context.Context, param *pb.NoParam) (*pb.
 
 func (EmployeeServer) GetEmployeeDetail(ctx context.Context, param *pb.GetEmployeeDetailRequest) (*pb.EmployeeResponse, error) {
 	var employee *model.Employee
-	if err := db.DB.Preload("Statistic").First(&employee, "id = ?", param.Id).Error; err != nil {
-		return nil, err
-	}
+	var employeeRes *pb.EmployeeResponse
 
-	err := db.DB.Model(&model.Statistic{}).Where("employee_id = ?", param.Id).
-		UpdateColumn("view_count", gorm.Expr("view_count + ?", 1)).Error
+	key := fmt.Sprintf(constant.FIND_ONE_EMPLOYEE, param.Id)
+	cachedEmployeeJSON, err := db.RedisClient.Get(ctx, key).Result()
 	if err != nil {
-		return nil, err
+		if err := db.PostgresDB.Preload("Statistic").First(&employee, "id = ?", param.Id).Error; err != nil {
+			return nil, err
+		}
+
+		err = db.PostgresDB.Model(&model.Statistic{}).Where("employee_id = ?", param.Id).
+			UpdateColumn("view_count", gorm.Expr("view_count + ?", 1)).Error
+		if err != nil {
+			return nil, err
+		}
+
+		cache, err := json.Marshal(employee)
+		fmt.Println("saving employee detail to cache...")
+		err = db.RedisClient.Set(ctx, key, cache, redis.KeepTTL).Err()
+		if err != nil {
+			fmt.Println("FAILED TO SET CACHE", err)
+			return nil, err
+		}
+
+		employeeRes = &pb.EmployeeResponse{
+			Employee: &pb.Employee{
+				Id:       employee.ID,
+				Name:     employee.Name,
+				Age:      int32(employee.Age),
+				Position: employee.Position,
+			}, Statistic: &pb.Statistic{
+				Id:        employee.Statistic.ID,
+				ViewCount: employee.Statistic.ViewCount,
+			},
+		}
+	} else {
+		if err := json.Unmarshal([]byte(cachedEmployeeJSON), &employee); err != nil {
+			return nil, err
+		}
+		employeeRes = &pb.EmployeeResponse{
+			Employee: &pb.Employee{
+				Id:       employee.ID,
+				Name:     employee.Name,
+				Age:      int32(employee.Age),
+				Position: employee.Position,
+			}, Statistic: &pb.Statistic{
+				Id:        employee.Statistic.ID,
+				ViewCount: employee.Statistic.ViewCount,
+			},
+		}
+		fmt.Println("employee detail retrieved from cache!")
 	}
 
 	// TODO: publish to NSQ
 
-	return &pb.EmployeeResponse{
-		Employee: &pb.Employee{
-			Id:       employee.ID,
-			Name:     employee.Name,
-			Age:      int32(employee.Age),
-			Position: employee.Position,
-		}, Statistic: &pb.Statistic{
-			Id:        employee.Statistic.ID,
-			ViewCount: employee.Statistic.ViewCount,
-		},
-	}, nil
+	return employeeRes, nil
 }
 
 func (EmployeeServer) AddEmployee(ctx context.Context, param *pb.AddEmployeeRequest) (*pb.EmployeeResponse, error) {
@@ -91,12 +127,12 @@ func (EmployeeServer) AddEmployee(ctx context.Context, param *pb.AddEmployeeRequ
 		ViewCount:  0,
 	}
 
-	err := db.DB.Create(employee).Error
+	err := db.PostgresDB.Create(employee).Error
 	if err != nil {
 		return nil, err
 	}
 
-	err = db.DB.Create(statistic).Error
+	err = db.PostgresDB.Create(statistic).Error
 	if err != nil {
 		return nil, err
 	}
@@ -118,14 +154,14 @@ func (EmployeeServer) AddEmployee(ctx context.Context, param *pb.AddEmployeeRequ
 
 func (EmployeeServer) UpdateEmployee(ctx context.Context, param *pb.UpdateEmployeeRequest) (*pb.EmployeeResponse, error) {
 	var employee *model.Employee
-	if err := db.DB.Preload("Statistic").First(&employee, "id = ?", param.Id).Error; err != nil {
+	if err := db.PostgresDB.Preload("Statistic").First(&employee, "id = ?", param.Id).Error; err != nil {
 		return nil, err
 	}
 
 	employee.Name = param.Name
 	employee.Position = param.Position
 
-	if err := db.DB.Save(&employee).Error; err != nil {
+	if err := db.PostgresDB.Save(&employee).Error; err != nil {
 		return nil, err
 	}
 
@@ -145,14 +181,14 @@ func (EmployeeServer) UpdateEmployee(ctx context.Context, param *pb.UpdateEmploy
 }
 
 func (EmployeeServer) DeleteEmployee(ctx context.Context, param *pb.DeleteEmployeeRequest) (*pb.DeleteEmployeeResponse, error) {
-	err := db.DB.Where("employee_id = ?", param.Id).Delete(&model.Statistic{}).Error
+	err := db.PostgresDB.Where("employee_id = ?", param.Id).Delete(&model.Statistic{}).Error
 	if err != nil {
 		return &pb.DeleteEmployeeResponse{
 			Success: false,
 		}, nil
 	}
 
-	err = db.DB.Where("id = ?", param.Id).Delete(&model.Employee{}).Error
+	err = db.PostgresDB.Where("id = ?", param.Id).Delete(&model.Employee{}).Error
 
 	return &pb.DeleteEmployeeResponse{
 		Success: err == nil,
@@ -164,11 +200,13 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	serviceEmployeePort := os.Getenv("SERVICE_EMPLOYEE_PORT")
+	serviceEmployeePort := os.Getenv("EMPLOYEE_GRPC_PORT")
 
-	if err := db.Connect(); err != nil {
+	if err := db.ConnectPostgres(); err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
+
+	db.ConnectRedis()
 
 	srv := grpc.NewServer()
 	var employeeSrv EmployeeServer
@@ -182,5 +220,4 @@ func main() {
 	}
 
 	log.Fatal(srv.Serve(l))
-
 }

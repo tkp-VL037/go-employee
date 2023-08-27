@@ -9,10 +9,10 @@ import (
 )
 
 var (
-	DB *gorm.DB
+	PostgresDB *gorm.DB
 )
 
-func Connect() error {
+func ConnectPostgres() error {
 	DB_HOST := os.Getenv("DB_HOST")
 	DB_USERNAME := os.Getenv("DB_USERNAME")
 	DB_PASSWORD := os.Getenv("DB_PASSWORD")
@@ -23,8 +23,8 @@ func Connect() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("database connected!")
+	fmt.Println("postgres connected!")
 
-	DB = db
+	PostgresDB = db
 	return nil
 }
