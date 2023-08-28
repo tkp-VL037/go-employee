@@ -4,9 +4,11 @@ go 1.21.0
 
 require (
 	github.com/99designs/gqlgen v0.17.36
+	github.com/go-chi/chi v1.5.4
 	github.com/joho/godotenv v1.5.1
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/redis/go-redis/v9 v9.1.0
+	github.com/rs/cors v1.9.0
 	github.com/segmentio/ksuid v1.0.4
 	github.com/vektah/gqlparser/v2 v2.5.8
 	google.golang.org/grpc v1.57.0
