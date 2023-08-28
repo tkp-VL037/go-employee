@@ -13,9 +13,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/tkp-VL037/go-employee/constant"
 	"github.com/tkp-VL037/go-employee/graph"
-	"github.com/tkp-VL037/go-employee/graph/nsq"
 	pb "github.com/tkp-VL037/go-employee/proto"
 )
 
@@ -46,8 +44,6 @@ func main() {
 		},
 	}))
 
-	// startConsumers()
-
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", srv)
 
@@ -63,8 +59,4 @@ func employeeService() pb.EmployeeServiceClient {
 	}
 
 	return pb.NewEmployeeServiceClient(conn)
-}
-
-func startConsumers() {
-	nsq.StartConsumer(constant.TOPIC_EMPLOYEE_DETAIL, constant.CHANNEL_PROCESSING)
 }

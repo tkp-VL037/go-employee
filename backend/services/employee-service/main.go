@@ -15,10 +15,10 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 	"github.com/segmentio/ksuid"
-	"github.com/tkp-VL037/go-employee/model"
 	pb "github.com/tkp-VL037/go-employee/proto"
 	"github.com/tkp-VL037/go-employee/services/employee-service/constant"
 	"github.com/tkp-VL037/go-employee/services/employee-service/db"
+	"github.com/tkp-VL037/go-employee/services/employee-service/model"
 	"github.com/tkp-VL037/go-employee/services/employee-service/nsq"
 )
 
