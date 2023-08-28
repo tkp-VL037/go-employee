@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "github.com/tkp-VL037/go-employee/proto";
+
+import "proto/base.proto";
+import "proto/statistic.proto";
+
+message Employee {
+    string id = 1;
+    string name = 2;
+    int32 age = 3;
+    string position = 4;
+}
+
+message EmployeeResponse {
+    Employee employee = 1;
+    Statistic statistic = 2;
+}
+
+message GetEmployeesResponse {
+    repeated EmployeeResponse EmployeeResponse = 1;
+}
+
+message GetEmployeeDetailRequest {
+    string id = 1;
+}
+
+message AddEmployeeRequest {
+    string name = 1;
+    int32 age = 2;
+    string position = 3;
+}
+
+message UpdateEmployeeRequest {
+    string id = 1;
+    string name = 2;
+    string position = 3;
+}
+
+message DeleteEmployeeRequest {
+    string id = 1;
+}
+
+message DeleteEmployeeResponse {
+    bool success = 1;
+}
+
+service EmployeeService {
+    rpc GetEmployees(NoParam) returns (GetEmployeesResponse) {}
+    rpc GetEmployeeDetail(GetEmployeeDetailRequest) returns (EmployeeResponse) {}
+    rpc AddEmployee(AddEmployeeRequest) returns (EmployeeResponse) {}
+    rpc UpdateEmployee(UpdateEmployeeRequest) returns (EmployeeResponse) {}
+    rpc DeleteEmployee(DeleteEmployeeRequest) returns (DeleteEmployeeResponse) {}
+}

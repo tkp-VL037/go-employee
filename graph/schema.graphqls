@@ -1,0 +1,29 @@
+type EmployeeResponse {
+  id: ID!
+  name: String!
+	age: Int!
+	position: String!
+  viewCount: Int!
+}
+
+input NewEmployee {
+  name: String!
+	age: Int!
+	position: String!
+}
+
+input UpdateEmployee {
+  name: String!
+  position: String!
+}
+
+type Query {
+  getEmployees: [EmployeeResponse!]!
+  getEmployeeDetail(id: ID!): EmployeeResponse!
+}
+
+type Mutation {
+  addEmployee(input: NewEmployee): EmployeeResponse!
+  updateEmployeeDetail(id: ID!, input: UpdateEmployee): EmployeeResponse!
+  deleteEmployee(id: ID!): Boolean!
+}
