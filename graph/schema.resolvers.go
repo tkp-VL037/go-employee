@@ -82,20 +82,22 @@ func (r *queryResolver) GetEmployees(ctx context.Context) ([]*gm.EmployeeRespons
 
 // GetEmployeeDetail is the resolver for the getEmployeeDetail field.
 func (r *queryResolver) GetEmployeeDetail(ctx context.Context, id string) (*gm.EmployeeResponse, error) {
-	employee, err := r.EmployeeSrvClient.GetEmployeeDetail(ctx, &proto.GetEmployeeDetailRequest{
+	_, err := r.EmployeeSrvClient.GetEmployeeDetail(ctx, &proto.GetEmployeeDetailRequest{
 		Id: id,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &gm.EmployeeResponse{
-		ID:        employee.Employee.Id,
-		Name:      employee.Employee.Name,
-		Age:       int(employee.Employee.Age),
-		Position:  employee.Employee.Position,
-		ViewCount: int(employee.Statistic.ViewCount),
-	}, nil
+	// return &gm.EmployeeResponse{
+	// 	ID:        employee.Employee.Id,
+	// 	Name:      employee.Employee.Name,
+	// 	Age:       int(employee.Employee.Age),
+	// 	Position:  employee.Employee.Position,
+	// 	ViewCount: int(employee.Statistic.ViewCount),
+	// }, nil
+
+	return &gm.EmployeeResponse{}, nil
 }
 
 // Mutation returns MutationResolver implementation.
