@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
@@ -18,10 +19,17 @@ import (
 	pb "github.com/tkp-VL037/go-employee/proto"
 	"github.com/tkp-VL037/go-employee/services/employee-service/constant"
 	"github.com/tkp-VL037/go-employee/services/employee-service/db"
+	"github.com/tkp-VL037/go-employee/services/employee-service/nsq"
 )
 
 type EmployeeServer struct {
 	pb.UnimplementedEmployeeServiceServer
+}
+
+type Message struct {
+	Sender    string
+	Content   interface{}
+	Timestamp time.Time
 }
 
 func (EmployeeServer) GetEmployees(ctx context.Context, param *pb.NoParam) (*pb.GetEmployeesResponse, error) {
@@ -109,6 +117,23 @@ func (EmployeeServer) GetEmployeeDetail(ctx context.Context, param *pb.GetEmploy
 	}
 
 	// TODO: publish to NSQ
+	topic := constant.TOPIC_EMPLOYEE_DETAIL
+	msg := Message{
+		Sender:    "EMPLOYEE_SERVICE",
+		Content:   employeeRes,
+		Timestamp: time.Now(),
+	}
+
+	payload, err := json.Marshal(msg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = nsq.NsqProducer.Publish(topic, payload)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("GetEmployeeDetail Message published!")
 
 	return employeeRes, nil
 }
@@ -207,6 +232,7 @@ func main() {
 	}
 
 	db.ConnectRedis()
+	nsq.StartProducer()
 
 	srv := grpc.NewServer()
 	var employeeSrv EmployeeServer
