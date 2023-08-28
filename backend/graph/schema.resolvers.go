@@ -96,8 +96,6 @@ func (r *queryResolver) GetEmployeeDetail(ctx context.Context, id string) (*gm.E
 		Position:  employee.Employee.Position,
 		ViewCount: int(employee.Statistic.ViewCount),
 	}, nil
-
-	// return &gm.EmployeeResponse{}, nil
 }
 
 // Mutation returns MutationResolver implementation.
