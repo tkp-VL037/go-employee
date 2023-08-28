@@ -67,6 +67,7 @@ func (EmployeeServer) GetEmployeeDetail(ctx context.Context, param *pb.GetEmploy
 	var employeeRes *pb.EmployeeResponse
 
 	key := fmt.Sprintf(constant.FIND_ONE_EMPLOYEE, param.Id)
+	db.RedisClient.Del(ctx, key) // delete cache KEY
 	cachedEmployeeJSON, err := db.RedisClient.Get(ctx, key).Result()
 	if err != nil {
 		if err := db.PostgresDB.Preload("Statistic").First(&employee, "id = ?", param.Id).Error; err != nil {

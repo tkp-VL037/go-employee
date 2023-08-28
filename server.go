@@ -36,7 +36,7 @@ func main() {
 		},
 	}))
 
-	startConsumers()
+	// startConsumers()
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
@@ -57,6 +57,4 @@ func employeeService() pb.EmployeeServiceClient {
 
 func startConsumers() {
 	nsq.StartConsumer(constant.TOPIC_EMPLOYEE_DETAIL, constant.CHANNEL_PROCESSING)
-	//
-	//
 }

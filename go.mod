@@ -5,6 +5,7 @@ go 1.21.0
 require (
 	github.com/99designs/gqlgen v0.17.36
 	github.com/joho/godotenv v1.5.1
+	github.com/nsqio/go-nsq v1.1.0
 	github.com/redis/go-redis/v9 v9.1.0
 	github.com/segmentio/ksuid v1.0.4
 	github.com/vektah/gqlparser/v2 v2.5.8
@@ -28,7 +29,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/nsqio/go-nsq v1.1.0 // indirect
 	golang.org/x/crypto v0.8.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
