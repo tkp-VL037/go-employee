@@ -9,7 +9,7 @@ import {
 } from '@apollo/client'
 import {onError} from '@apollo/client/link/error'
 import GetEmployees from './Components/GetEmployees';
-import GetEmployeeDetail from './Components/GetEmployeeDetail';
+import AddEmployee from './Components/AddEmployee';
 
 const errorLink = onError(({graphqlErrors, networkError}) => {
   if (graphqlErrors) {
@@ -33,7 +33,7 @@ function App() {
   return (
     <ApolloProvider client={client}>
       <GetEmployees/>
-      {/* <GetEmployeeDetail/> */}
+      <AddEmployee/>
     </ApolloProvider>
   );
 }
