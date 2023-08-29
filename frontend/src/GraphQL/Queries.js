@@ -11,3 +11,15 @@ export const GET_ALL_EMPLOYEES = gql`
         }
     }
 `
+
+export const GET_EMPLOYEE_DETAIL = gql`
+    query GetEmployee($employeeId: ID!) {
+        getEmployeeDetail(id: $employeeId) {
+            id
+            age
+            name
+            position
+            viewCount
+        }
+    }
+`
