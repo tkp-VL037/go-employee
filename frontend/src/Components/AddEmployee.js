@@ -20,13 +20,13 @@ function GetEmployeeDetail() {
 
     const handleFormSubmit = () => {
         addEmployee({
-        variables: {
-            input: {
-                name: name,
-                age: parseInt(age),
-                position: position
+            variables: {
+                input: {
+                    name: name,
+                    age: parseInt(age),
+                    position: position
+                }
             }
-        }
         });
 
         setShowModal(false);

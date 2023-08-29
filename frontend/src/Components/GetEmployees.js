@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {useQuery, gql} from '@apollo/client'
 import {GET_ALL_EMPLOYEES} from '../GraphQL/Queries'
 import GetEmployeeDetail from './GetEmployeeDetail';
+import UpdateEmployeeDetail from './UpdateEmployeeDetail';
 
 
 function GetEmployees() {
@@ -36,11 +37,13 @@ function GetEmployees() {
                             <td>{emp.viewCount}</td>
                             <td key={emp.id}>
                                 <GetEmployeeDetail employeeId={emp.id}/>
-                                <button type="button" className="btn btn-warning"
+                                <UpdateEmployeeDetail employee={emp}/>
+
+                                {/* <button type="button" className="btn btn-warning"
                                         data-bs-toggle="modal"
                                         data-bs-target={`#emp-${emp.id}UpdateModal`}>
                                         Update
-                                </button>
+                                </button> */}
                                 <button type="button" className="btn btn-danger"
                                         data-bs-toggle="modal"
                                         data-bs-target={`#emp-${emp.id}DeleteModal`}>
@@ -48,7 +51,7 @@ function GetEmployees() {
                                 </button>
 
                                 {/* Update Modal */}
-                                <div className="modal fade" id={`emp-${emp.id}UpdateModal`} tabindex="-1" aria-labelledby={`emp-${emp.id}UpdateModalLabel`} aria-hidden="true">
+                                {/* <div className="modal fade" id={`emp-${emp.id}UpdateModal`} tabindex="-1" aria-labelledby={`emp-${emp.id}UpdateModalLabel`} aria-hidden="true">
                                     <div className="modal-dialog">
                                         <div className="modal-content">
                                         <div className="modal-header">
@@ -85,7 +88,7 @@ function GetEmployees() {
                                         </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> */}
 
                                 {/* Delete Modal */}
                                 <div className="modal fade" id={`emp-${emp.id}DeleteModal`} tabindex="-1" aria-labelledby={`emp-${emp.id}DeleteModalLabel`} aria-hidden="true">
