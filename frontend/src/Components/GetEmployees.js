@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {useQuery, gql} from '@apollo/client'
 import {GET_ALL_EMPLOYEES} from '../GraphQL/Queries'
+import GetEmployeeDetail from './GetEmployeeDetail';
 
 
 function GetEmployees() {
@@ -11,11 +12,11 @@ function GetEmployees() {
         if (data) {
             setEmployees(data.getEmployees)
         }
-    }, [data])    
+    }, [data])
     return (
-        <div class="container mt-5">
+        <div className="container mt-5">
             <h2>List of Employees</h2>
-            <table class="table">
+            <table className="table">
                 <thead>
                     <tr>
                     <th scope="col">ID</th>
@@ -26,7 +27,7 @@ function GetEmployees() {
                     </tr>
                 </thead>
                 <tbody>
-                    {employees.map((emp, index) => {
+                    {employees.map((emp) => {
                         return (
                             <tr>
                             <td>{emp.id}</td>
@@ -34,72 +35,39 @@ function GetEmployees() {
                             <td>{emp.position}</td>
                             <td>{emp.viewCount}</td>
                             <td key={emp.id}>
-                                <button type="button" class="btn btn-info"
-                                        data-bs-toggle="modal"
-                                        data-bs-target={`#emp-${emp.id}ViewModal`}>
-                                        View
-                                </button>
-                                <button type="button" class="btn btn-warning"
+                                <GetEmployeeDetail employeeId={emp.id}/>
+                                <button type="button" className="btn btn-warning"
                                         data-bs-toggle="modal"
                                         data-bs-target={`#emp-${emp.id}UpdateModal`}>
                                         Update
                                 </button>
-                                <button type="button" class="btn btn-danger"
+                                <button type="button" className="btn btn-danger"
                                         data-bs-toggle="modal"
                                         data-bs-target={`#emp-${emp.id}DeleteModal`}>
                                         Delete
                                 </button>
 
-                                {/* View Modal */}
-                                <div class="modal fade" id={`emp-${emp.id}ViewModal`} tabindex="-1" aria-labelledby={`emp-${emp.id}ViewModalLabel`} aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id={`emp-${emp.id}ViewModalLabel`}>{emp.name}</h1>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="container mt-5">
-                                                <table class="table">
-                                                    <tbody>
-                                                    <tr>
-                                                        <td>Id: <b>{emp.id}</b></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Position: {emp.position}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>View Count: <b>{emp.viewCount}</b></td>
-                                                    </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 {/* Update Modal */}
-                                <div class="modal fade" id={`emp-${emp.id}UpdateModal`} tabindex="-1" aria-labelledby={`emp-${emp.id}UpdateModalLabel`} aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id={`emp-${emp.id}UpdateModalLabel`}>{emp.name}</h1>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <div className="modal fade" id={`emp-${emp.id}UpdateModal`} tabindex="-1" aria-labelledby={`emp-${emp.id}UpdateModalLabel`} aria-hidden="true">
+                                    <div className="modal-dialog">
+                                        <div className="modal-content">
+                                        <div className="modal-header">
+                                            <h1 className="modal-title fs-5" id={`emp-${emp.id}UpdateModalLabel`}>{emp.name}</h1>
+                                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <div class="modal-body">
-                                            <div class="container mt-5">
-                                                <table class="table">
+                                        <div className="modal-body">
+                                            <div className="container mt-5">
+                                                <table className="table">
                                                     <tbody>
                                                     <tr>
                                                         <td>Id: <b>{emp.id}</b></td>
                                                     </tr>
                                                     <tr>
                                                         <td>
-                                                            <div class="mb-3 row">
-                                                                <label for="inputPosition" class="col-sm-2 col-form-label">Position</label>
-                                                                <div class="col-sm-10">
-                                                                    <input type="position" class="form-control" id="inputPosition" value={emp.position}/>
+                                                            <div className="mb-3 row">
+                                                                <label for="inputPosition" className="col-sm-2 col-form-label">Position</label>
+                                                                <div className="col-sm-10">
+                                                                    <input type="position" className="form-control" id="inputPosition" value={emp.position}/>
                                                                 </div>
                                                             </div>
                                                         </td>
@@ -111,26 +79,26 @@ function GetEmployees() {
                                                 </table>
                                             </div>
                                         </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="button" class="btn btn-success">Confirm</button>
+                                        <div className="modal-footer">
+                                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="button" className="btn btn-success">Confirm</button>
                                         </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Delete Modal */}
-                                <div class="modal fade" id={`emp-${emp.id}DeleteModal`} tabindex="-1" aria-labelledby={`emp-${emp.id}DeleteModalLabel`} aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id={`emp-${emp.id}DeleteModalLabel`}>Modal title</h1>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <div className="modal fade" id={`emp-${emp.id}DeleteModal`} tabindex="-1" aria-labelledby={`emp-${emp.id}DeleteModalLabel`} aria-hidden="true">
+                                    <div className="modal-dialog">
+                                        <div className="modal-content">
+                                        <div className="modal-header">
+                                            <h1 className="modal-title fs-5" id={`emp-${emp.id}DeleteModalLabel`}>Modal title</h1>
+                                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <div class="modal-body">
-                                            <div class="container mt-5">
+                                        <div className="modal-body">
+                                            <div className="container mt-5">
                                                 <h2>Delete Employee?</h2>
-                                                <table class="table">
+                                                <table className="table">
                                                     <tbody>
                                                     <tr>
                                                         <td>Position: {emp.position}</td>
@@ -142,9 +110,9 @@ function GetEmployees() {
                                                 </table>
                                                 </div>
                                             </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                <button type="button" class="btn btn-danger">Confirm</button>
+                                            <div className="modal-footer">
+                                                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="button" className="btn btn-danger">Confirm</button>
                                             </div>
                                         </div>
                                     </div>
