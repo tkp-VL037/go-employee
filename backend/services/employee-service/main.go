@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
-	"gorm.io/gorm"
 
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
@@ -71,12 +70,6 @@ func (EmployeeServer) GetEmployeeDetail(ctx context.Context, param *pb.GetEmploy
 	cachedEmployeeJSON, err := db.RedisClient.Get(ctx, key).Result()
 	if err != nil {
 		if err := db.PostgresDB.Preload("Statistic").First(&employee, "id = ?", param.Id).Error; err != nil {
-			return nil, err
-		}
-
-		err = db.PostgresDB.Model(&model.Statistic{}).Where("employee_id = ?", param.Id).
-			UpdateColumn("view_count", gorm.Expr("view_count + ?", 1)).Error
-		if err != nil {
 			return nil, err
 		}
 
@@ -215,6 +208,15 @@ func (EmployeeServer) DeleteEmployee(ctx context.Context, param *pb.DeleteEmploy
 	}
 
 	err = db.PostgresDB.Where("id = ?", param.Id).Delete(&model.Employee{}).Error
+
+	key := fmt.Sprintf(constant.FIND_ONE_EMPLOYEE, param.Id)
+	deleteCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second) // add longer timeout context
+	defer cancel()
+
+	err = db.RedisClient.Del(deleteCtx, key).Err() // delete cache KEY
+	if err != nil {
+		return nil, err
+	}
 
 	return &pb.DeleteEmployeeResponse{
 		Success: err == nil,
