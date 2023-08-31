@@ -2,8 +2,8 @@ package constant
 
 const (
 	// topic
-	BASE_TOPIC            = "vincentlow.goemployee."
-	TOPIC_EMPLOYEE_DETAIL = BASE_TOPIC + "employee.detail"
+	base_topic            = "vincentlow.goemployee."
+	TOPIC_EMPLOYEE_DETAIL = base_topic + "employee.detail"
 
 	// channel
 	CHANNEL_PROCESSING = "processing"
