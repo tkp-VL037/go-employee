@@ -180,7 +180,15 @@ func (EmployeeServer) UpdateEmployee(ctx context.Context, param *pb.UpdateEmploy
 	employee.Name = param.Name
 	employee.Position = param.Position
 
+	key := fmt.Sprintf(constant.FIND_ONE_EMPLOYEE, param.Id)
+	deleteCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second) // add longer timeout context
+	defer cancel()
 	if err := db.PostgresDB.Save(&employee).Error; err != nil {
+		return nil, err
+	}
+
+	err := db.RedisClient.Del(deleteCtx, key).Err() // delete cache KEY
+	if err != nil {
 		return nil, err
 	}
 
